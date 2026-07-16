@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
 from google import genai
 from mistralai.client import Mistral
+import logging
+
+logger = logging.getLogger(__name__)
 
 class LLMProvider(ABC):
     @abstractmethod
@@ -48,10 +51,9 @@ class FallbackProvider(LLMProvider):
                 if not content:
                     raise ValueError("Text from provider was None!")
             except Exception as e:
-                print(f"{provider} has failed")
-                print(f"Error: {e}")
+                logger.warning(f"{type(provider).__name__} has failed: {e}")
             else:
-                print(f"{type(provider).__name__} has successfully responded")
+                logger.info(f"{type(provider).__name__} has successfully responded")
                 response = content
                 break
         return response

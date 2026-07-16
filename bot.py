@@ -27,7 +27,14 @@ Keep responses under 500 words.
 dp = Dispatcher()
 provider = FallbackProvider([GeminiProvider(GEMINI_API_KEY), MistralProvider(MISTRAL_API_KEY)])
 
-
+@dp.message(Command("help"))
+async def command_help_handler(message: Message) -> None:
+    await message.answer(
+        "I help with grammar, spelling, and punctuation questions. "
+        "Ask me anything about how a word is spelled, where a comma goes, "
+        "or why a sentence sounds off — I'll explain the rule and give an example.\n\n"
+        "I reply in whichever language you write to me in."
+    )
 
 @dp.message(Command("start"))
 async def command_start_handler(message: Message) -> None:
