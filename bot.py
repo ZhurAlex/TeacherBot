@@ -1,8 +1,9 @@
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.types import Message
-from config import BOT_TOKEN, GEMINI_API_KEY, MISTRAL_API_KEY
+from config import BOT_TOKEN, GEMINI_API_KEY, MISTRAL_API_KEY, async_session
 from providers import GeminiProvider, MistralProvider, FallbackProvider
+from models import User, Message
 
 TELEGRAM_MESSAGE_LIMIT = 4096
 SYSTEM_PROMPT = """
@@ -38,6 +39,15 @@ async def command_help_handler(message: Message) -> None:
 
 @dp.message(Command("start"))
 async def command_start_handler(message: Message) -> None:
+    async with async_session() as session:
+        usr = User(
+            username=message.from_user.username,
+            first_name=message.from_user.first_name,
+            last_name=message.from_user.last_name,
+            chat_id=message.chat.id,
+        )
+        session.add(usr)
+        await session.commit()
     await message.answer("Hello! I'm a bot created with aiogram.")
 
 @dp.message()
