@@ -1,9 +1,10 @@
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.types import Message
-from config import BOT_TOKEN, GEMINI_API_KEY, MISTRAL_API_KEY, async_session
+from config import BOT_TOKEN, GEMINI_API_KEY, MISTRAL_API_KEY
 from providers import GeminiProvider, MistralProvider, FallbackProvider
-from models import User, Message
+from models import User
+from repository import get_or_create_user, save_message
 
 TELEGRAM_MESSAGE_LIMIT = 4096
 SYSTEM_PROMPT = """
@@ -28,6 +29,14 @@ Keep responses under 500 words.
 dp = Dispatcher()
 provider = FallbackProvider([GeminiProvider(GEMINI_API_KEY), MistralProvider(MISTRAL_API_KEY)])
 
+async def check_user(message: Message) -> User:
+    return await get_or_create_user(
+        chat_id=message.chat.id,
+        username=message.from_user.username,
+        first_name=message.from_user.first_name,
+        last_name=message.from_user.last_name
+    )
+
 @dp.message(Command("help"))
 async def command_help_handler(message: Message) -> None:
     await message.answer(
@@ -39,15 +48,7 @@ async def command_help_handler(message: Message) -> None:
 
 @dp.message(Command("start"))
 async def command_start_handler(message: Message) -> None:
-    async with async_session() as session:
-        usr = User(
-            username=message.from_user.username,
-            first_name=message.from_user.first_name,
-            last_name=message.from_user.last_name,
-            chat_id=message.chat.id,
-        )
-        session.add(usr)
-        await session.commit()
+    await check_user(message)
     await message.answer("Hello! I'm a bot created with aiogram.")
 
 @dp.message()
@@ -55,8 +56,11 @@ async def message_handler(message: Message) -> None:
     if not message.text:
         await message.answer("Please send a text message.")
         return
+    user = await check_user(message)
     reply = await provider.generate(message.text, SYSTEM_PROMPT)
-    await send_response(message, reply)
+
+    await send_response(message, reply.text)
+    await save_message(user, message.text, reply.text, reply.provider_name, reply.tokens_used)
 
 async def send_response(message: Message, text: str):
     if len(text) <= TELEGRAM_MESSAGE_LIMIT:

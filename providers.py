@@ -2,12 +2,20 @@ from abc import ABC, abstractmethod
 from google import genai
 from mistralai.client import Mistral
 import logging
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
+@dataclass
+class LLMResponse:
+    text: str
+    provider_name: str
+    tokens_used: int | None = None
+
+
 class LLMProvider(ABC):
     @abstractmethod
-    async def generate(self, text: str, system: str = "") -> str: ...
+    async def generate(self, text: str, system: str = "") -> LLMResponse: ...
 
 class GeminiProvider(LLMProvider):
     def __init__(self, api_key: str, model: str = "gemini-3.1-flash-lite"):
@@ -20,7 +28,11 @@ class GeminiProvider(LLMProvider):
             contents=text,
             config = genai.types.GenerateContentConfig(system_instruction = system)
         )
-        return response.text
+        return LLMResponse(
+            text=response.text,
+            tokens_used=response.usage_metadata.total_token_count,
+            provider_name=type(self).__name__
+        )
 
 class MistralProvider(LLMProvider):
     def __init__(self, api_key: str, model: str = "mistral-small-latest"):
@@ -37,23 +49,29 @@ class MistralProvider(LLMProvider):
             model=self.model,
             messages=messages
         )
-        return response.choices[0].message.content
+        return LLMResponse(
+            text=response.choices[0].message.content,
+            tokens_used=response.usage.total_tokens,
+            provider_name=type(self).__name__
+        )
 
 class FallbackProvider(LLMProvider):
     def __init__(self, providers: list[LLMProvider]):
         self.providers = providers
 
     async def generate(self, text: str, system: str = ""):
-        response = "Unfortunately something went wrong and none of the providers worked correctly"
         for provider in self.providers:
             try:
-                content = await provider.generate(text, system)
-                if not content:
+                result = await provider.generate(text, system)
+                if not result.text:
                     raise ValueError("Text from provider was None!")
             except Exception as e:
                 logger.warning(f"{type(provider).__name__} has failed: {e}")
             else:
                 logger.info(f"{type(provider).__name__} has successfully responded")
-                response = content
-                break
-        return response
+                return result
+        return LLMResponse(
+            text="Sorry, something went wrong and I couldn't generate a response. Please try again later.",
+            provider_name="none",
+            tokens_used=None
+        )
