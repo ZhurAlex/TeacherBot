@@ -45,12 +45,18 @@ FallbackProvider.generate()
 
 ```
 TeacherBot/
-├── main.py          # entry point
-├── bot.py            # aiogram dispatcher, handlers, system prompt
-├── providers.py       # LLMProvider interface + Gemini/Mistral/Fallback adapters
-├── config.py          # environment variable loading & validation
-├── .env.example        # required environment variables (no secrets)
-└── pyproject.toml       # dependencies (Poetry)
+├── bot/
+│   ├── main.py          # entry point
+│   ├── handlers.py       # aiogram dispatcher, handlers
+│   ├── prompts.py        # system prompt
+│   └── providers.py      # LLMProvider interface + Gemini/Mistral/Fallback adapters
+├── admin/                # future FastAPI admin panel
+├── models.py             # SQLAlchemy models
+├── repository.py         # data access layer
+├── config/               # environment variable loading & validation
+├── alembic/              # database migrations
+├── .env.example          # required environment variables (no secrets)
+└── pyproject.toml        # dependencies (Poetry)
 ```
 
 ## Setup
@@ -64,7 +70,7 @@ poetry install
 cp .env.example .env
 # fill in BOT_TOKEN, GEMINI_API_KEY, MISTRAL_API_KEY
 
-poetry run python main.py
+poetry run python -m bot.main
 ```
 
 ## Roadmap

@@ -1,5 +1,5 @@
 import asyncio
-from bot import start_bot
+from bot.handlers import start_bot
 import logging
 
 logging.basicConfig(
