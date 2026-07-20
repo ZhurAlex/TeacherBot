@@ -23,6 +23,12 @@ async def get_or_create_user(
             await session.refresh(user)
         return user
     
+async def get_all_users() -> list[User]:
+    async with async_session() as session:
+        result = await session.execute(select(User))
+        users = result.scalars().all()
+        return users
+    
 async def save_message(user: User, text: str, response: str, provider_used: str, tokens_used: int | None = None) -> Message:
     async with async_session() as session:
         message = Message(
