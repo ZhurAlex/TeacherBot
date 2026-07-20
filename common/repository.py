@@ -1,5 +1,5 @@
 from sqlalchemy import select
-from models import User, Message
+from common.models import User, Message
 from config import async_session
 
 async def get_or_create_user(

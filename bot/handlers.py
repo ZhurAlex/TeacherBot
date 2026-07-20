@@ -4,8 +4,8 @@ from aiogram.types import Message
 from config import BOT_TOKEN, GEMINI_API_KEY, MISTRAL_API_KEY
 from bot.providers import GeminiProvider, MistralProvider, FallbackProvider
 from bot.prompts import SYSTEM_PROMPT
-from models import User
-from repository import get_or_create_user, save_message
+from common.models import User
+from common.repository import get_or_create_user, save_message
 
 TELEGRAM_MESSAGE_LIMIT = 4096
 

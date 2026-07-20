@@ -6,7 +6,7 @@ from sqlalchemy import pool
 from alembic import context
 
 from config.settings import DATABASE_URL
-from models import Base  # твой файл с User, Message, и Base
+from common.models import Base
 
 config = context.config
 config.set_main_option("sqlalchemy.url", DATABASE_URL)

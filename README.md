@@ -51,8 +51,9 @@ TeacherBot/
 │   ├── prompts.py        # system prompt
 │   └── providers.py      # LLMProvider interface + Gemini/Mistral/Fallback adapters
 ├── admin/                # future FastAPI admin panel
-├── models.py             # SQLAlchemy models
-├── repository.py         # data access layer
+├── common/
+│   ├── models.py         # SQLAlchemy models
+│   └── repository.py     # data access layer
 ├── config/               # environment variable loading & validation
 ├── alembic/              # database migrations
 ├── .env.example          # required environment variables (no secrets)
