@@ -53,7 +53,9 @@ TeacherBot/
 ├── admin/                # future FastAPI admin panel
 ├── common/
 │   ├── models.py         # SQLAlchemy models
-│   └── repository.py     # data access layer
+│   └── repository/
+│       ├── users.py      # user queries
+│       └── messages.py   # message queries
 ├── config/               # environment variable loading & validation
 ├── alembic/              # database migrations
 ├── .env.example          # required environment variables (no secrets)

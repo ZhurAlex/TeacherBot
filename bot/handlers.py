@@ -5,7 +5,8 @@ from config import BOT_TOKEN, GEMINI_API_KEY, MISTRAL_API_KEY
 from bot.providers import GeminiProvider, MistralProvider, FallbackProvider
 from bot.prompts import SYSTEM_PROMPT
 from common.models import User
-from common.repository import get_or_create_user, save_message
+from common.repository.users import get_or_create_user
+from common.repository.messages import save_message
 
 TELEGRAM_MESSAGE_LIMIT = 4096
 

@@ -11,6 +11,7 @@ class UserSchema(BaseModel):
     chat_id: int
     is_blocked: bool
     first_seen_at: datetime
+    total_tokens: int | None
 
 class MessageSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)

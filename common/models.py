@@ -18,6 +18,9 @@ class User(Base):
 
     messages: Mapped[list["Message"]] = relationship(back_populates="user")
 
+    def __repr__(self) -> str:
+        return f"User(id={self.id}, username={self.username!r}, chat_id={self.chat_id})"
+
 class Message(Base):
     __tablename__ = "messages"
 
