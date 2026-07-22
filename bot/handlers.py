@@ -13,13 +13,18 @@ TELEGRAM_MESSAGE_LIMIT = 4096
 dp = Dispatcher()
 provider = FallbackProvider([GeminiProvider(GEMINI_API_KEY), MistralProvider(MISTRAL_API_KEY)])
 
-async def check_user(message: Message) -> User:
-    return await get_or_create_user(
+async def check_user(message: Message) -> User | None:
+    user = await get_or_create_user(
         chat_id=message.chat.id,
         username=message.from_user.username,
         first_name=message.from_user.first_name,
         last_name=message.from_user.last_name
     )
+    if user.is_blocked:
+        await message.answer("You have been blocked. Contact support if you think this is a mistake")
+        return
+    return user
+
 
 @dp.message(Command("help"))
 async def command_help_handler(message: Message) -> None:
@@ -32,8 +37,9 @@ async def command_help_handler(message: Message) -> None:
 
 @dp.message(Command("start"))
 async def command_start_handler(message: Message) -> None:
-    await check_user(message)
-    await message.answer("Hello! I'm a bot created with aiogram.")
+    user = await check_user(message)
+    if user is not None:
+        await message.answer("Hello! I'm a bot created with aiogram.")
 
 @dp.message()
 async def message_handler(message: Message) -> None:
@@ -41,6 +47,8 @@ async def message_handler(message: Message) -> None:
         await message.answer("Please send a text message.")
         return
     user = await check_user(message)
+    if user is None:
+        return
     reply = await provider.generate(message.text, SYSTEM_PROMPT)
 
     await send_response(message, reply.text)
