@@ -1,6 +1,6 @@
-from fastapi import APIRouter, HTTPException
-from admin.schemas import UserSchema, MessageSchema
-from common.repository.users import get_all_users, get_user_by_id
+from fastapi import APIRouter, HTTPException, Body
+from admin.schemas import BlockUserSchema, UserSchema, MessageSchema
+from common.repository.users import get_all_users, get_user_by_id, set_user_blocked
 from common.repository.messages import get_user_messages
 
 router = APIRouter()
@@ -24,12 +24,14 @@ async def read_user_messages(user_id: int):
         raise HTTPException(status_code=404, detail="User not found")
     return messages
 
-@router.patch("users/{user_id}/block")
-async def block_user(user_id: int):
-    user = await get_user_by_id(user_id)
+@router.patch("/users/{user_id}/block", response_model=BlockUserSchema)
+async def block_user(user_id: int, blocked: bool = Body(embed=True)):
+    user = await set_user_blocked(user_id, blocked)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    # TODO: Implement the logic to block the user
+    return BlockUserSchema(id=user_id, is_blocked=blocked)
+
+
 
 @router.get("/")
 def read_root():

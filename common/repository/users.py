@@ -49,3 +49,15 @@ async def get_all_users() -> list[User]:
             users.append(user)
 
         return users
+
+async def set_user_blocked(user_id: int, blocked: bool) -> User | None:
+    async with async_session() as session:
+        result = await session.execute(select(User).where(User.id == user_id))
+        user = result.scalar_one_or_none()
+        if user is None:
+            return None
+        user.is_blocked = blocked
+        await session.commit()
+        await session.refresh(user)
+        return user
+

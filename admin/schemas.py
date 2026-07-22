@@ -23,3 +23,8 @@ class MessageSchema(BaseModel):
     provider_used: str
     tokens_used: int | None
     created_at: datetime
+
+class BlockUserSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    is_blocked: bool
