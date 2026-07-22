@@ -100,4 +100,4 @@ The frontend runs on `http://localhost:5173` and expects the backend at `http://
 - [x] **Stage 1 — MVP bot**: forward user questions to an LLM with fallback between providers
 - [x] **Stage 2 — Admin panel**: FastAPI backend + React frontend for viewing users and usage, blocking abusive accounts
 - [ ] **Stage 3 — RAG on personal error history**: track each user's recurring mistakes and surface relevant past examples via semantic search
-- [ ] **Stage 4 — TBD**
+- [ ] **Stage 4 — Admin panel hardening**: JWT authorization, automated tests, and a chart of daily request volume
