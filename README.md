@@ -50,7 +50,11 @@ TeacherBot/
 │   ├── handlers.py       # aiogram dispatcher, handlers
 │   ├── prompts.py        # system prompt
 │   └── providers.py      # LLMProvider interface + Gemini/Mistral/Fallback adapters
-├── admin/                # future FastAPI admin panel
+├── admin/                # FastAPI admin panel
+│   ├── main.py           # app entry point, CORS
+│   ├── routes.py         # /users endpoints (list, detail, messages, block)
+│   ├── schemas.py        # Pydantic response models
+│   └── frontend/         # React + TypeScript admin UI (Vite, TanStack Query)
 ├── common/
 │   ├── models.py         # SQLAlchemy models
 │   └── repository/
@@ -76,9 +80,24 @@ cp .env.example .env
 poetry run python -m bot.main
 ```
 
+### Admin panel
+
+```bash
+# backend (from repo root)
+poetry run uvicorn admin.main:app --port 8000
+
+# frontend (in another terminal)
+cd admin/frontend
+npm install
+cp .env.example .env   # set VITE_API_BASE_URL if the backend isn't on localhost:8000
+npm run dev
+```
+
+The frontend runs on `http://localhost:5173` and expects the backend at `http://localhost:8000` (already allowed via CORS in `admin/main.py`).
+
 ## Roadmap
 
 - [x] **Stage 1 — MVP bot**: forward user questions to an LLM with fallback between providers
-- [ ] **Stage 2 — Admin panel**: FastAPI backend + React frontend for viewing users and usage, blocking abusive accounts
+- [x] **Stage 2 — Admin panel**: FastAPI backend + React frontend for viewing users and usage, blocking abusive accounts
 - [ ] **Stage 3 — RAG on personal error history**: track each user's recurring mistakes and surface relevant past examples via semantic search
 - [ ] **Stage 4 — TBD**
